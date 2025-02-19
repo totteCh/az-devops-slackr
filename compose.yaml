@@ -1,0 +1,36 @@
+services:
+  server:
+    container_name: server
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 2929:2929
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    container_name: db
+    image: postgres:15.11-bullseye
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=example
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    expose:
+      - 5432
+    healthcheck:
+      test: ['CMD', 'pg_isready']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+volumes:
+  db-data:
+secrets:
+  db-password:
+    file: db/password.txt

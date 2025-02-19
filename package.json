@@ -1,0 +1,32 @@
+{
+  "name": "az-devops-slackr",
+  "version": "0.1.0",
+  "description": "Azure DevOps notifications for Slack",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totteCh/az-devops-slackr.git"
+  },
+  "keywords": [
+    "azure",
+    "devops",
+    "slack",
+    "notifications"
+  ],
+  "author": "Christoffer Wigforss",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/totteCh/az-devops-slackr/issues"
+  },
+  "homepage": "https://github.com/totteCh/az-devops-slackr#readme",
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3"
+  }
+}
