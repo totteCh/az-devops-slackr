@@ -1,0 +1,49 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Pipeline {
+    id   Int    @id
+    name String
+
+    PullRequest PullRequest[]
+
+    @@map("pipelines")
+}
+
+model PullRequest {
+    id             Int       @id
+    url            String
+    createdBy      String    @map("created_by")
+    repositoryName String    @map("repository_name")
+    status         String
+    title          String
+    isDraft        Boolean   @map("is_draft")
+    testPipelineId Int?      @map("test_pipeline_id")
+    testPipeline   Pipeline? @relation(fields: [testPipelineId], references: [id])
+
+    slackThread SlackThread?
+
+    @@map("pull_requests")
+}
+
+model User {
+    email   String @id
+    name    String
+    slackId String @map("slack_id")
+
+    @@map("users")
+}
+
+model SlackThread {
+    ts            String      @id
+    pullRequestId Int         @unique @map("pull_request_id")
+    pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id])
+
+    @@map("slack_threads")
+}

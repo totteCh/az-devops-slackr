@@ -5,11 +5,34 @@ services:
       context: .
     environment:
       NODE_ENV: production
+    env_file:
+      - .env
     ports:
       - 2929:2929
+    volumes:
+      - .azure:/home/node/.azure
     depends_on:
       db:
         condition: service_healthy
+
+  migrate:
+    container_name: migrate
+    build:
+      context: .
+    command: >
+      sh -c "
+      npx prisma migrate deploy
+      "
+    environment:
+      NODE_ENV: production
+    env_file:
+      - .env
+    volumes:
+      - ./prisma:/usr/src/app/prisma
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     container_name: db
     image: postgres:15.11-bullseye
@@ -20,7 +43,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=example
+      - POSTGRES_DB=az_devops_slackr
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     expose:
       - 5432

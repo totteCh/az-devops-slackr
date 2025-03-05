@@ -1,17 +1,18 @@
-# syntax=docker/dockerfile:1
-
 ARG NODE_VERSION=23.1.0
 
 ################################################################################
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION}-alpine AS base
 
-# Set working directory for all build stages.
+# Set working directory.
 WORKDIR /usr/src/app
 
 ################################################################################
-# Stage for installing production dependecies.
+# Stage for installing production dependencies.
 FROM base AS deps
+
+# Set working directory.
+WORKDIR /usr/src/app
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
@@ -33,8 +34,13 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=/root/.npm \
     npm ci
 
+# Generate Prisma Client files.
+RUN --mount=type=bind,source=prisma/schema.prisma,target=prisma/schema.prisma \
+    npx prisma generate
+
 # Copy the rest of the source files into the image.
 COPY . .
+
 # Run the build script.
 RUN npm run build
 
@@ -60,6 +66,7 @@ RUN --mount=type=cache,target=/var/cache/apk \
     && . /opt/venv/bin/activate \
     && pip install --upgrade pip \
     && pip install --no-cache-dir azure-cli \
+    && az extension add --name azure-devops \
     && deactivate \
     && apk del \
         gcc \
@@ -85,12 +92,17 @@ ENV NODE_ENV=production
 # Run the application as a non-root user.
 USER node
 
+# Set working directory.
+WORKDIR /usr/src/app
+
 # Copy package.json so that package manager commands can be used.
 COPY package.json .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
 COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /usr/src/app/prisma/schema.prisma ./prisma/schema.prisma
 COPY --from=build /usr/src/app/dist ./dist
 
 # Expose the port that the application listens on.

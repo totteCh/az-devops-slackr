@@ -8,6 +8,9 @@
     "build": "tsc",
     "test": "jest"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/totteCh/az-devops-slackr.git"
@@ -26,7 +29,17 @@
   "homepage": "https://github.com/totteCh/az-devops-slackr#readme",
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@types/node": "^22.13.9",
+    "prisma": "^6.4.1",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.7.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "@slack/oauth": "^3.0.2",
+    "@slack/web-api": "^7.8.0",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
   }
 }
